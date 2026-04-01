@@ -1,0 +1,105 @@
+<div class="dashboard-container">
+
+    <header class="dashboard-header">
+        <h1>¡Bienvenido a Prode 2026! ⚽</h1>
+        <p>Tu prediccion para la copa.</p>
+    </header>
+
+    <section class="quick-actions-bar">
+        <button routerLink="/grupos/crear" class="btn-action btn-new">
+            <span class="icon">➕</span> Crear Nuevo Grupo
+        </button>
+        <button routerLink="/grupos/unirse" class="btn-action btn-join">
+            <span class="icon">🔑</span> Unirme con Código
+        </button>
+    </section>
+
+    <div class="dashboard-grid">
+
+        <section class="card-section mis-grupos">
+            <div class="header-section">
+                <h2>🏆 Mis Grupos</h2>
+                <span class="badge" *ngIf="misGrupos.length > 0">{{ misGrupos.length }}</span>
+            </div>
+
+            <div *ngIf="cargando" class="loading-state">
+                <div class="spinner"></div>
+                <p>Cargando tus grupos...</p>
+            </div>
+
+            <div *ngIf="!cargando && misGrupos.length === 0" class="empty-state">
+                <span class="empty-icon">👥</span>
+                <p>Aún no participás en ningún grupo.</p>
+                <button routerLink="/grupos/crear" class="btn-primary btn-sm">¡Crea tu primer grupo!</button>
+            </div>
+
+            <div class="grupos-list" *ngIf="!cargando && misGrupos.length > 0">
+                <div class="grupo-card" *ngFor="let grupo of misGrupos" [class.is-admin]="grupo.es_admin">
+                    <div class="grupo-main-info">
+                        <div class="grupo-title-wrapper">
+                            <span class="crown-icon" *ngIf="grupo.es_admin" title="Sos Admin">👑</span>
+                            <span class="nombre-grupo">{{ grupo.nombre }}</span>
+                        </div>
+                        <span class="miembros-tag">{{ grupo.cantidad_miembros }} miembros</span>
+                    </div>
+
+                    <div class="admin-actions-box" *ngIf="grupo.es_admin">
+                        <span class="label-codigo">Código para invitar:</span>
+                        <div class="codigo-wrapper">
+                            <code>{{ grupo.codigo_invitacion }}</code>
+                            <button (click)="copiarCodigo(grupo.codigo_invitacion)" class="btn-copy"
+                                title="Copiar código">
+                                📋
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="member-tag-wrapper" *ngIf="!grupo.es_admin">
+                        <span class="status-tag">Participante</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card-section proximos-partidos">
+            <div class="header-section">
+                <h2>📅 Próximos Partidos</h2>
+            </div>
+
+            <div *ngIf="proximosPartidos.length === 0" class="empty-state">
+                <span class="empty-icon">🏟️</span>
+                <p>No hay partidos próximos.</p>
+            </div>
+
+            <div class="partidos-list" *ngIf="proximosPartidos.length > 0">
+                <div class="partido-card" *ngFor="let partido of proximosPartidos">
+                    <div class="partido-header">
+                        <span class="fecha">{{ partido.fecha_hora | date:'d/M, h:mm a' }}</span>
+                        <span class="grupo-tag">Grupo {{ partido.grupo }}</span>
+                    </div>
+
+                    <div class="equipos-matchup">
+                        <div class="equipo local">
+                            <span *ngIf="partido.equipo_local?.codigo_iso"
+                                class="fi fi-{{ partido.equipo_local.codigo_iso | lowercase }}">
+                            </span>
+                            <span class="nombre-equipo">{{ partido.equipo_local.nombre }}</span>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="equipo visitante">
+                            <span *ngIf="partido.equipo_visitante?.codigo_iso"
+                                class="fi fi-{{ partido.equipo_visitante.codigo_iso | lowercase }}">
+                            </span>
+                            <span class="nombre-equipo">{{ partido.equipo_visitante.nombre }}</span>
+                        </div>
+                    </div>
+
+                    <div class="partido-actions">
+                        <button routerLink="/fixture" class="btn-predict btn-sm">Cargar Pronóstico</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>

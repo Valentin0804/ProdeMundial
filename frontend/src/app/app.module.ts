@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
+import { RouterModule, provideRouter, withRouterConfig, withComponentInputBinding } from '@angular/router';
 import { AppComponent } from './app';
 import { SharedModule } from './shared/shared-module';
 import { routes } from './app.routes';
 import { jwtInterceptor } from './interceptors/jwt-interceptor';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
 
 @NgModule({
     declarations: [
@@ -17,7 +18,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
         RouterModule.forRoot(routes)
     ],
     providers: [
-        provideHttpClient(withInterceptors([jwtInterceptor]))
+        provideHttpClient(withInterceptors([jwtInterceptor])),
+        provideRouter(routes,
+            withRouterConfig({
+                onSameUrlNavigation: 'reload',
+                paramsInheritanceStrategy: 'always'
+            }),
+            withComponentInputBinding()
+        )
     ],
     bootstrap: [AppComponent]
 })

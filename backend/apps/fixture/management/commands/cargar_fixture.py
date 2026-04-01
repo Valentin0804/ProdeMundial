@@ -1,316 +1,180 @@
 """
-Management command: cargar_fixture
-===================================
-Descarga el fixture del Mundial 2026 desde el repo público de openfootball
-(sin API key, dominio público) y lo carga en la base de datos.
-
-Uso:
-    python manage.py cargar_fixture
-    python manage.py cargar_fixture --limpiar   # borra todo antes de cargar
-
-Fuente:
-    https://github.com/openfootball/worldcup.json
-    Raw JSON: https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json
+Fixture completo Mundial 2026 - 48 equipos, 72 partidos confirmados.
+Uso: python manage.py cargar_fixture [--limpiar]
 """
-
-import urllib.request
-import json
+from django.core.management.base import BaseCommand
 from datetime import datetime, timezone as dt_timezone
-from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
 from apps.fixture.models import Equipo, Partido
 
-URL_FIXTURE = (
-    "https://raw.githubusercontent.com/"
-    "openfootball/worldcup.json/master/2026/worldcup.json"
-)
+EQUIPOS = [
+    ("México","MEX","mx","A","CONCACAF"),
+    ("Sudáfrica","RSA","za","A","CAF"),
+    ("Corea del Sur","KOR","kr","A","AFC"),
+    ("Rep. Checa","CZE","cz","A","UEFA"),
+    ("Canadá","CAN","ca","B","CONCACAF"),
+    ("Suiza","SUI","ch","B","UEFA"),
+    ("Qatar","QAT","qa","B","AFC"),
+    ("Bosnia-Herz.","BIH","ba","B","UEFA"),
+    ("Brasil","BRA","br","C","CONMEBOL"),
+    ("Marruecos","MAR","ma","C","CAF"),
+    ("Escocia","SCO","gb","C","UEFA"),
+    ("Haití","HAI","ht","C","CONCACAF"),
+    ("Estados Unidos","USA","us","D","CONCACAF"),
+    ("Australia","AUS","au","D","AFC"),
+    ("Paraguay","PAR","py","D","CONMEBOL"),
+    ("Turquía","TUR","tr","D","UEFA"),
+    ("Alemania","GER","de","E","UEFA"),
+    ("Costa de Marfil","CIV","ci","E","CAF"),
+    ("Ecuador","ECU","ec","E","CONMEBOL"),
+    ("Curazao","CUW","cu","E","CONCACAF"),
+    ("Países Bajos","NED","nl","F","UEFA"),
+    ("Japón","JPN","jp","F","AFC"),
+    ("Túnez","TUN","tn","F","CAF"),
+    ("Suecia","SWE","se","F","UEFA"),
+    ("Bélgica","BEL","be","G","UEFA"),
+    ("Irán","IRN","ir","G","AFC"),
+    ("Egipto","EGY","eg","G","CAF"),
+    ("Nueva Zelanda","NZL","nz","G","OFC"),
+    ("España","ESP","es","H","UEFA"),
+    ("Cabo Verde","CPV","cv","H","CAF"),
+    ("Arabia Saudita","KSA","sa","H","AFC"),
+    ("Uruguay","URU","uy","H","CONMEBOL"),
+    ("Francia","FRA","fr","I","UEFA"),
+    ("Senegal","SEN","sn","I","CAF"),
+    ("Noruega","NOR","no","I","UEFA"),
+    ("Irak","IRQ","iq","I","AFC"),
+    ("Argentina","ARG","ar","J","CONMEBOL"),
+    ("Argelia","ALG","dz","J","CAF"),
+    ("Austria","AUT","at","J","UEFA"),
+    ("Jordania","JOR","jo","J","AFC"),
+    ("Portugal","POR","pt","K","UEFA"),
+    ("Uzbekistán","UZB","uz","K","AFC"),
+    ("Colombia","COL","co","K","CONMEBOL"),
+    ("RD del Congo","COD","cd","K","CAF"),
+    ("Inglaterra","ENG","en","L","UEFA"),
+    ("Croacia","CRO","hr","L","UEFA"),
+    ("Ghana","GHA","gh","L","CAF"),
+    ("Panamá","PAN","pa","L","CONCACAF"),
+]
 
-# Mapeo de nombre de país (openfootball) → código FIFA de 3 letras
-# Completar/ajustar según los nombres que devuelva el JSON
-CODIGOS_FIFA = {
-    "Mexico":                  "MEX",
-    "South Africa":            "RSA",
-    "South Korea":             "KOR",
-    "Argentina":               "ARG",
-    "Morocco":                 "MAR",
-    "Portugal":                "POR",
-    "USA":                     "USA",
-    "United States":           "USA",
-    "Panama":                  "PAN",
-    "Honduras":                "HON",
-    "Spain":                   "ESP",
-    "China":                   "CHN",
-    "Switzerland":             "SUI",
-    "New Zealand":             "NZL",
-    "Germany":                 "GER",
-    "Japan":                   "JPN",
-    "Uruguay":                 "URU",
-    "Australia":               "AUS",
-    "Serbia":                  "SRB",
-    "Netherlands":             "NED",
-    "France":                  "FRA",
-    "Ecuador":                 "ECU",
-    "Canada":                  "CAN",
-    "England":                 "ENG",
-    "Senegal":                 "SEN",
-    "Brazil":                  "BRA",
-    "Saudi Arabia":            "KSA",
-    "Belgium":                 "BEL",
-    "Colombia":                "COL",
-    "Croatia":                 "CRO",
-    "Poland":                  "POL",
-    "Iran":                    "IRN",
-    "Nigeria":                 "NGA",
-    "Ivory Coast":             "CIV",
-    "Cameroon":                "CMR",
-    "Venezuela":               "VEN",
-    "Peru":                    "PER",
-    "Paraguay":                "PAR",
-    "Bolivia":                 "BOL",
-    "Chile":                   "CHI",
-    "Egypt":                   "EGY",
-    "Algeria":                 "ALG",
-    "Tunisia":                 "TUN",
-    "Ghana":                   "GHA",
-    "Mali":                    "MLI",
-    "Kenya":                   "KEN",
-    "Tanzania":                "TAN",
-    "Uganda":                  "UGA",
-    "Zambia":                  "ZAM",
-    "Uzbekistan":              "UZB",
-    "Qatar":                   "QAT",
-    "Iraq":                    "IRQ",
-    "Turkey":                  "TUR",
-    "Romania":                 "ROU",
-    "Ukraine":                 "UKR",
-    "Slovakia":                "SVK",
-    "Czechia":                 "CZE",
-    "Austria":                 "AUT",
-    "Hungary":                 "HUN",
-    "Albania":                 "ALB",
-    "Scotland":                "SCO",
-    "Wales":                   "WAL",
-    "Greece":                  "GRE",
-    "Denmark":                 "DEN",
-    "Sweden":                  "SWE",
-    "Norway":                  "NOR",
-    "Finland":                 "FIN",
-    "Iceland":                 "ISL",
-    "Slovenia":                "SVN",
-    "Costa Rica":              "CRC",
-    "Jamaica":                 "JAM",
-    "Trinidad and Tobago":     "TRI",
-    "Guatemala":               "GUA",
-    "Cuba":                    "CUB",
-    "New Caledonia":           "NCL",
-    "Tahiti":                  "TAH",
-    "Fiji":                    "FIJ",
-    "Solomon Islands":         "SOL",
-    "Vanuatu":                 "VAN",
-    "Indonesia":               "IDN",
-    "Thailand":                "THA",
-    "Vietnam":                 "VIE",
-    "Philippines":             "PHI",
-    "Malaysia":                "MAS",
-    "Jordan":                  "JOR",
-    "Bahrain":                 "BHR",
-    "Oman":                    "OMA",
-    "Kuwait":                  "KUW",
-    "Palestine":               "PLE",
-    "Syria":                   "SYR",
-    "Bosnia and Herzegovina":  "BIH",
-    "North Macedonia":         "MKD",
-    "Kosovo":                  "KVX",
-    "Israel":                  "ISR",
-    "Azerbaijan":              "AZE",
-    "Georgia":                 "GEO",
-    "Armenia":                 "ARM",
-    "Montenegro":              "MNE",
-    "Luxembourg":              "LUX",
-    "Malta":                   "MLT",
-    "Andorra":                 "AND",
-    "Russia":                  "RUS",
-}
+# (local, visitante, grupo, jornada, fecha_UTC, estadio, ciudad)
+PARTIDOS = [
+    # Jornada 1
+    ("MEX","RSA","A",1,"2026-06-11 20:00","Estadio Azteca","Ciudad de México"),
+    ("KOR","CZE","A",1,"2026-06-12 03:00","Estadio Akron","Guadalajara"),
+    ("CAN","QAT","B",1,"2026-06-13 01:00","BC Place","Vancouver"),
+    ("SUI","BIH","B",1,"2026-06-12 20:00","SoFi Stadium","Los Ángeles"),
+    ("BRA","MAR","C",1,"2026-06-13 20:00","MetLife Stadium","Nueva York/NJ"),
+    ("SCO","HAI","C",1,"2026-06-14 00:00","AT&T Stadium","Dallas"),
+    ("USA","AUS","D",1,"2026-06-14 20:00","SoFi Stadium","Los Ángeles"),
+    ("PAR","TUR","D",1,"2026-06-15 04:00","Levi's Stadium","San Francisco"),
+    ("GER","CUW","E",1,"2026-06-14 18:00","NRG Stadium","Houston"),
+    ("CIV","ECU","E",1,"2026-06-15 00:00","Lincoln Financial","Filadelfia"),
+    ("NED","SWE","F",1,"2026-06-20 18:00","NRG Stadium","Houston"),
+    ("TUN","JPN","F",1,"2026-06-21 03:00","Estadio BBVA","Monterrey"),
+    ("BEL","EGY","G",1,"2026-06-15 20:00","Lumen Field","Seattle"),
+    ("IRN","NZL","G",1,"2026-06-16 02:00","SoFi Stadium","Los Ángeles"),
+    ("ESP","CPV","H",1,"2026-06-16 20:00","Hard Rock Stadium","Miami"),
+    ("KSA","URU","H",1,"2026-06-16 23:00","Hard Rock Stadium","Miami"),
+    ("FRA","SEN","I",1,"2026-06-15 20:00","MetLife Stadium","Nueva York/NJ"),
+    ("NOR","IRQ","I",1,"2026-06-15 23:00","Gillette Stadium","Boston"),
+    ("ARG","ALG","J",1,"2026-06-15 02:00","Arrowhead Stadium","Kansas City"),
+    ("AUT","JOR","J",1,"2026-06-16 04:00","Levi's Stadium","San Francisco"),
+    ("POR","COD","K",1,"2026-06-17 18:00","NRG Stadium","Houston"),
+    ("UZB","COL","K",1,"2026-06-18 03:00","Estadio Azteca","Ciudad de México"),
+    ("ENG","CRO","L",1,"2026-06-17 21:00","AT&T Stadium","Dallas"),
+    ("GHA","PAN","L",1,"2026-06-18 00:00","BMO Field","Toronto"),
+    # Jornada 2
+    ("CZE","RSA","A",2,"2026-06-18 17:00","Mercedes-Benz Stadium","Atlanta"),
+    ("MEX","KOR","A",2,"2026-06-19 02:00","Estadio Akron","Guadalajara"),
+    ("SUI","CAN","B",2,"2026-06-19 20:00","SoFi Stadium","Los Ángeles"),
+    ("QAT","BIH","B",2,"2026-06-20 00:00","BC Place","Vancouver"),
+    ("BRA","SCO","C",2,"2026-06-19 00:00","AT&T Stadium","Dallas"),
+    ("MAR","HAI","C",2,"2026-06-20 00:00","Lincoln Financial","Filadelfia"),
+    ("TUR","USA","D",2,"2026-06-19 21:00","Levi's Stadium","San Francisco"),
+    ("AUS","PAR","D",2,"2026-06-20 03:00","Levi's Stadium","San Francisco"),
+    ("GER","CIV","E",2,"2026-06-20 21:00","BMO Field","Toronto"),
+    ("ECU","CUW","E",2,"2026-06-21 01:00","Arrowhead Stadium","Kansas City"),
+    ("JPN","SWE","F",2,"2026-06-25 22:00","AT&T Stadium","Dallas"),
+    ("TUN","NED","F",2,"2026-06-26 00:00","Arrowhead Stadium","Kansas City"),
+    ("BEL","IRN","G",2,"2026-06-21 20:00","Lumen Field","Seattle"),
+    ("EGY","NZL","G",2,"2026-06-22 00:00","Gillette Stadium","Boston"),
+    ("ESP","KSA","H",2,"2026-06-22 20:00","Estadio Akron","Guadalajara"),
+    ("CPV","URU","H",2,"2026-06-23 00:00","Estadio Akron","Guadalajara"),
+    ("FRA","NOR","I",2,"2026-06-21 00:00","MetLife Stadium","Nueva York/NJ"),
+    ("SEN","IRQ","I",2,"2026-06-22 02:00","Gillette Stadium","Boston"),
+    ("ARG","AUT","J",2,"2026-06-22 03:00","Levi's Stadium","San Francisco"),
+    ("ALG","JOR","J",2,"2026-06-23 04:00","Levi's Stadium","San Francisco"),
+    ("POR","UZB","K",2,"2026-06-23 18:00","NRG Stadium","Houston"),
+    ("COD","COL","K",2,"2026-06-24 03:00","Estadio Akron","Guadalajara"),
+    ("ENG","GHA","L",2,"2026-06-23 21:00","Gillette Stadium","Boston"),
+    ("PAN","CRO","L",2,"2026-06-24 00:00","BMO Field","Toronto"),
+    # Jornada 3
+    ("CZE","MEX","A",3,"2026-06-25 02:00","Estadio Azteca","Ciudad de México"),
+    ("RSA","KOR","A",3,"2026-06-25 02:00","Estadio BBVA","Monterrey"),
+    ("SUI","QAT","B",3,"2026-06-25 22:00","SoFi Stadium","Los Ángeles"),
+    ("CAN","BIH","B",3,"2026-06-25 22:00","BC Place","Vancouver"),
+    ("BRA","HAI","C",3,"2026-06-26 02:00","MetLife Stadium","Nueva York/NJ"),
+    ("MAR","SCO","C",3,"2026-06-26 02:00","Lincoln Financial","Filadelfia"),
+    ("USA","PAR","D",3,"2026-06-26 22:00","SoFi Stadium","Los Ángeles"),
+    ("TUR","AUS","D",3,"2026-06-26 22:00","Levi's Stadium","San Francisco"),
+    ("ECU","GER","E",3,"2026-06-26 21:00","MetLife Stadium","Nueva York/NJ"),
+    ("CUW","CIV","E",3,"2026-06-26 21:00","Lincoln Financial","Filadelfia"),
+    ("JPN","TUN","F",3,"2026-06-26 22:00","AT&T Stadium","Dallas"),
+    ("SWE","NED","F",3,"2026-06-26 22:00","Arrowhead Stadium","Kansas City"),
+    ("BEL","NZL","G",3,"2026-06-27 02:00","Lumen Field","Seattle"),
+    ("EGY","IRN","G",3,"2026-06-27 02:00","Gillette Stadium","Boston"),
+    ("ESP","URU","H",3,"2026-06-28 01:00","Estadio Akron","Guadalajara"),
+    ("CPV","KSA","H",3,"2026-06-28 01:00","Hard Rock Stadium","Miami"),
+    ("FRA","IRQ","I",3,"2026-06-27 22:00","MetLife Stadium","Nueva York/NJ"),
+    ("SEN","NOR","I",3,"2026-06-27 22:00","Gillette Stadium","Boston"),
+    ("ARG","JOR","J",3,"2026-06-28 03:00","AT&T Stadium","Dallas"),
+    ("ALG","AUT","J",3,"2026-06-28 03:00","Arrowhead Stadium","Kansas City"),
+    ("COL","POR","K",3,"2026-06-28 00:30","Hard Rock Stadium","Miami"),
+    ("COD","UZB","K",3,"2026-06-28 00:30","Mercedes-Benz Stadium","Atlanta"),
+    ("PAN","ENG","L",3,"2026-06-28 22:00","MetLife Stadium","Nueva York/NJ"),
+    ("CRO","GHA","L",3,"2026-06-28 22:00","Lincoln Financial","Filadelfia"),
+]
 
-# Mapeo de nombre del grupo en el JSON → letra del grupo
-# openfootball usa "Group A", "Group B", etc.
-def extraer_grupo(group_str):
-    """Extrae la letra del grupo desde 'Group A' → 'A'"""
-    if not group_str:
-        return None
-    partes = group_str.strip().split()
-    if len(partes) >= 2:
-        return partes[-1].upper()
-    return None
-
-
-def parsear_fecha(date_str, time_str=None):
-    """
-    Convierte fecha/hora del JSON a datetime con timezone.
-    El JSON usa formato: date="2026-06-11", time="13:00 UTC-6"
-    Lo convertimos a UTC.
-    """
-    try:
-        if time_str:
-            # Extraer offset UTC si viene
-            # Formato: "13:00 UTC-6" o "20:00 UTC+0"
-            partes = time_str.strip().split()
-            hora = partes[0]
-            offset_horas = 0
-            if len(partes) > 1 and 'UTC' in partes[1]:
-                offset_str = partes[1].replace('UTC', '')
-                if offset_str:
-                    offset_horas = int(offset_str)
-            dt_naive = datetime.strptime(f"{date_str} {hora}", "%Y-%m-%d %H:%M")
-            # Ajustar el offset: si UTC-6, sumar 6 horas para llegar a UTC
-            from datetime import timedelta
-            dt_utc = dt_naive - timedelta(hours=offset_horas)
-            return dt_utc.replace(tzinfo=dt_timezone.utc)
-        else:
-            dt_naive = datetime.strptime(date_str, "%Y-%m-%d")
-            return dt_naive.replace(hour=12, tzinfo=dt_timezone.utc)
-    except Exception:
-        dt_naive = datetime.strptime(date_str, "%Y-%m-%d")
-        return dt_naive.replace(hour=12, tzinfo=dt_timezone.utc)
-
+def dt_utc(s):
+    return datetime.strptime(s, "%Y-%m-%d %H:%M").replace(tzinfo=dt_timezone.utc)
 
 class Command(BaseCommand):
-    help = "Carga el fixture del Mundial 2026 desde openfootball/worldcup.json (sin API key)"
+    help = "Carga el fixture completo del Mundial 2026 (48 equipos, 72 partidos)"
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--limpiar',
-            action='store_true',
-            help='Elimina todos los equipos y partidos antes de cargar',
-        )
+        parser.add_argument('--limpiar', action='store_true')
 
     def handle(self, *args, **options):
         if options['limpiar']:
-            self.stdout.write(self.style.WARNING("Limpiando datos existentes..."))
+            self.stdout.write(self.style.WARNING("Limpiando..."))
             Partido.objects.all().delete()
             Equipo.objects.all().delete()
-            self.stdout.write(self.style.SUCCESS("  Datos eliminados."))
 
-        # ── 1. Descargar JSON ──────────────────────────────────────────────
-        self.stdout.write(f"\nDescargando fixture desde:\n  {URL_FIXTURE}\n")
-        try:
-            req = urllib.request.Request(
-                URL_FIXTURE,
-                headers={"User-Agent": "ProdeWorldCup/1.0"}
+        # Equipos
+        em = {}
+        creados_e = 0
+        for nombre, codigo, iso, grupo, conf in EQUIPOS:
+            obj, nuevo = Equipo.objects.get_or_create(
+                codigo_fifa=codigo,
+                defaults={"nombre": nombre, "grupo": grupo, "confederacion": conf, "codigo_iso": iso}
             )
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except Exception as e:
-            raise CommandError(f"Error al descargar el fixture: {e}")
+            if not nuevo:
+                obj.nombre = nombre; obj.grupo = grupo; obj.save()
+            else:
+                creados_e += 1
+            em[codigo] = obj
 
-        matches = data.get("matches", [])
-        self.stdout.write(f"  {len(matches)} partidos encontrados en el JSON.\n")
+        self.stdout.write(self.style.SUCCESS(f"Equipos: {Equipo.objects.count()}/48 ({creados_e} nuevos)"))
 
-        # ── 2. Extraer equipos únicos de fase de grupos ───────────────────
-        equipos_vistos = {}  # nombre → Equipo
-
-        partidos_grupos = [
-            m for m in matches
-            if m.get("group") and "Group" in m.get("group", "")
-        ]
-
-        self.stdout.write(f"  Partidos de fase de grupos: {len(partidos_grupos)}\n")
-
-        for match in partidos_grupos:
-            for key in ("team1", "team2"):
-                nombre = match.get(key, "")
-                if nombre and nombre not in equipos_vistos and "winner" not in nombre.lower() and "runner" not in nombre.lower():
-                    grupo_letra = extraer_grupo(match.get("group", ""))
-                    codigo = CODIGOS_FIFA.get(nombre, nombre[:3].upper())
-                    equipo, creado = Equipo.objects.get_or_create(
-                        codigo_fifa=codigo,
-                        defaults={
-                            "nombre": nombre,
-                            "grupo": grupo_letra or "A",
-                        }
-                    )
-                    if not creado:
-                        # Actualizar grupo si cambió
-                        if grupo_letra and equipo.grupo != grupo_letra:
-                            equipo.grupo = grupo_letra
-                            equipo.save()
-                    equipos_vistos[nombre] = equipo
-                    if creado:
-                        self.stdout.write(f"  + Equipo: {nombre} ({codigo}) → Grupo {grupo_letra}")
-
-        self.stdout.write(
-            self.style.SUCCESS(f"\n  {len(equipos_vistos)} equipos cargados.\n")
-        )
-
-        # ── 3. Cargar partidos de fase de grupos ──────────────────────────
-        partidos_cargados = 0
-        partidos_omitidos = 0
-
-        # Determinar jornada por ronda
-        # openfootball usa "Matchday 1", "Matchday 2"... o "Round 1"
-        def extraer_jornada(round_str):
-            if not round_str:
-                return 1
-            round_str = round_str.lower()
-            for num in ("1", "2", "3"):
-                if num in round_str:
-                    return int(num)
-            return 1
-
-        for match in partidos_grupos:
-            nombre1 = match.get("team1", "")
-            nombre2 = match.get("team2", "")
-
-            # Saltear partidos con equipos TBD
-            if (not nombre1 or not nombre2 or
-                    nombre1 not in equipos_vistos or
-                    nombre2 not in equipos_vistos):
-                partidos_omitidos += 1
-                continue
-
-            equipo_local = equipos_vistos[nombre1]
-            equipo_visitante = equipos_vistos[nombre2]
-            grupo_letra = extraer_grupo(match.get("group", ""))
-            jornada = extraer_jornada(match.get("round", ""))
-            fecha_hora = parsear_fecha(
-                match.get("date", "2026-06-11"),
-                match.get("time")
+        # Partidos
+        creados_p = 0
+        for local_c, visit_c, grupo, jornada, fecha, estadio, ciudad in PARTIDOS:
+            _, nuevo = Partido.objects.get_or_create(
+                equipo_local=em[local_c], equipo_visitante=em[visit_c], grupo=grupo,
+                defaults={"jornada": jornada, "fecha_hora": dt_utc(fecha), "estadio": estadio, "ciudad": ciudad}
             )
-            estadio = match.get("ground", "")
+            if nuevo: creados_p += 1
 
-            # Evitar duplicados
-            if Partido.objects.filter(
-                equipo_local=equipo_local,
-                equipo_visitante=equipo_visitante,
-                grupo=grupo_letra
-            ).exists():
-                partidos_omitidos += 1
-                continue
-
-            Partido.objects.create(
-                equipo_local=equipo_local,
-                equipo_visitante=equipo_visitante,
-                fecha_hora=fecha_hora,
-                jornada=jornada,
-                grupo=grupo_letra or "A",
-                estadio=estadio,
-            )
-            partidos_cargados += 1
-            self.stdout.write(
-                f"  + Partido Grupo {grupo_letra} J{jornada}: "
-                f"{equipo_local.codigo_fifa} vs {equipo_visitante.codigo_fifa} "
-                f"({fecha_hora.strftime('%Y-%m-%d %H:%M')} UTC)"
-            )
-
-        # ── 4. Resumen ────────────────────────────────────────────────────
-        self.stdout.write("")
-        self.stdout.write(self.style.SUCCESS("═" * 50))
-        self.stdout.write(self.style.SUCCESS("  FIXTURE CARGADO EXITOSAMENTE"))
-        self.stdout.write(self.style.SUCCESS("═" * 50))
-        self.stdout.write(f"  Equipos en DB:    {Equipo.objects.count()}")
-        self.stdout.write(f"  Partidos cargados: {partidos_cargados}")
-        self.stdout.write(f"  Partidos omitidos: {partidos_omitidos} (TBD o duplicados)")
-        self.stdout.write("")
-        self.stdout.write("  Podés verificar en: http://127.0.0.1:8000/admin")
-        self.stdout.write("  Y en: http://127.0.0.1:8000/api/fixture/grupos/")
-        self.stdout.write("")
+        self.stdout.write(self.style.SUCCESS(f"Partidos: {Partido.objects.count()}/72 ({creados_p} nuevos)"))
+        self.stdout.write(self.style.SUCCESS("✓ Fixture cargado. Verificá en /api/fixture/grupos/"))

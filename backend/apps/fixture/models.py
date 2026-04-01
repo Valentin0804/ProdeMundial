@@ -30,6 +30,7 @@ POSICIONES = [
 class Equipo(models.Model):
     nombre = models.CharField(max_length=100)
     codigo_fifa = models.CharField(max_length=3, unique=True)  # Ej: ARG, BRA
+    codigo_iso = models.CharField(max_length=2, null=True, blank=True)  # Ej: AR, BR
     grupo = models.CharField(max_length=1, choices=GRUPOS)
     escudo = models.ImageField(upload_to='escudos/', null=True, blank=True)
     confederacion = models.CharField(max_length=50, blank=True)

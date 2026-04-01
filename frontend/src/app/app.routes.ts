@@ -4,8 +4,13 @@ import { authGuard } from './core/guards/auth-guard';
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: 'fixture',
-        pathMatch: 'full'
+        pathMatch: 'full',
+        redirectTo: 'home'
+    },
+    {
+        path: 'home',
+        canActivate: [authGuard],
+        loadComponent: () => import('./shared/home/home').then(m => m.HomeComponent)
     },
     {
         path: 'auth',
@@ -37,7 +42,11 @@ export const routes: Routes = [
             import('./ranking/ranking-module').then(m => m.RankingModule)
     },
     {
+        path: 'grupos',
+        loadChildren: () => import('./grupos/grupos-module').then(m => m.GruposModule)
+    },
+    {
         path: '**',
-        redirectTo: 'fixture'
+        redirectTo: 'home'
     }
 ];

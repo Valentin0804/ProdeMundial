@@ -27,7 +27,7 @@ export class LoginComponent {
     this.error = '';
 
     this.auth.login(this.username, this.password).subscribe({
-      next: () => this.router.navigate(['/fixture']),
+      next: () => this.router.navigate(['/home']),
       error: () => {
         this.error = 'Usuario o contraseña incorrectos.';
         this.cargando = false;

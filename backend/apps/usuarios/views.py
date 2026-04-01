@@ -23,12 +23,17 @@ class PerfilView(generics.RetrieveUpdateAPIView):
 
 class GrupoPrivadoListCreateView(generics.ListCreateAPIView):
     serializer_class = GrupoPrivadoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    ordering = ['-creado_en']
 
     def get_queryset(self):
-        # Devuelve grupos donde el usuario es miembro o admin
         return GrupoPrivado.objects.filter(
             miembros__usuario=self.request.user
-        ).distinct()
+        ).distinct().order_by('-creado_en')
+        
+    def perform_create(self, serializer):
+        grupo = serializer.save(admin=self.request.user)
+        Miembro.objects.create(grupo=grupo, usuario=self.request.user)
 
 
 @api_view(['POST'])

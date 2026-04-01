@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
 
+
 // ── Variables FIFA ──────────────────────────────────────────────
 :root {
     --verde: #006633;
@@ -235,4 +236,24 @@ h3 {
 
 .text-center {
     text-align: center;
+}
+
+/* Estilo global para banderas */
+
+.fi {
+    display: inline-block !important;
+    width: 28px !important;
+    height: 20px !important;
+    background-size: cover !important;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* Ajuste específico para el matchup del Home */
+.equipos-matchup {
+    .equipo .fi {
+        width: 3rem;
+        height: 2.2rem;
+    }
 }

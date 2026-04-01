@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FixtureService, FixtureGrupos, Partido } from '../../core/services/fixture';
 import { PronosticoService, Pronostico } from '../../core/services/pronostico';
@@ -22,7 +22,9 @@ export class FixtureGruposComponent implements OnInit {
 
   constructor(
     private fixtureService: FixtureService,
-    private pronosticoService: PronosticoService
+    private pronosticoService: PronosticoService,
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -30,30 +32,42 @@ export class FixtureGruposComponent implements OnInit {
   }
 
   cargarDatos(): void {
-    this.cargando = false;
+    const fixture$ = this.fixtureService.getFixtureGrupos();
+    this.cargando = true;
     this.fixtureService.getFixtureGrupos().subscribe({
-      next: (data) => {
-        this.fixture = data;
-        this.grupos = Object.keys(data).sort();
-        if (this.grupos.length) this.grupoActivo = this.grupos[0];
-        this.cargarPronosticos();
+      next: (data: any) => {
+        this.fixture = data.results || data;
+        this.grupos = Object.keys(this.fixture).sort();
+        this.cargando = false;
+        this.cdr.detectChanges(); // <--- ESTO fuerzo el renderizado sí o sí
       },
       error: () => {
-        this.error = 'Error al cargar el fixture.';
-        this.cargando = false;
+        this.zone.run(() => {
+          this.error = 'Error al cargar el fixture.';
+          this.cargando = false;
+        });
       }
     });
   }
 
   cargarPronosticos(): void {
     this.pronosticoService.getMisPronosticos().subscribe({
-      next: (data) => {
-        data.forEach(p => this.pronosticos.set(p.partido, p));
-        this.cargando = false;
+      next: (data: any) => {
+        this.zone.run(() => {
+          const listaPronosticos = data.results ? data.results : data;
+          if (Array.isArray(listaPronosticos)) {
+            listaPronosticos.forEach(p => this.pronosticos.set(p.partido, p));
+          }
+          this.cargando = false; // Aquí finalmente deja de cargar
+        });
       },
-      error: () => { this.cargando = false; }
+      error: () => {
+        this.zone.run(() => { this.cargando = false; });
+      }
     });
   }
+
+
 
   getJornadas(grupo: string): string[] {
     return Object.keys(this.fixture[grupo] || {}).sort();

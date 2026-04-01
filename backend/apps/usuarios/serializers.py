@@ -34,19 +34,20 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class GrupoPrivadoSerializer(serializers.ModelSerializer):
     admin = UsuarioSerializer(read_only=True)
     cantidad_miembros = serializers.SerializerMethodField()
+    es_admin = serializers.SerializerMethodField()
 
     class Meta:
         model = GrupoPrivado
-        fields = ('id', 'nombre', 'codigo_invitacion', 'admin',
+        fields = ('id', 'nombre', 'codigo_invitacion', 'admin', 'es_admin',
                   'cantidad_miembros', 'creado_en')
         read_only_fields = ('id', 'codigo_invitacion', 'admin', 'creado_en')
 
     def get_cantidad_miembros(self, obj):
         return obj.miembros.count()
 
-    def create(self, validated_data):
-        validated_data['admin'] = self.context['request'].user
-        return super().create(validated_data)
+    def get_es_admin(self, obj):
+        user = self.context['request'].user
+        return obj.admin == user
 
 
 class MiembroSerializer(serializers.ModelSerializer):
