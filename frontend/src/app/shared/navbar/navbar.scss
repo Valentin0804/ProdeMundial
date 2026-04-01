@@ -1,0 +1,131 @@
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--verde-oscuro);
+    border-bottom: 2px solid var(--dorado);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+
+    &__inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 16px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+    }
+
+    &__logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        flex-shrink: 0;
+
+        &-icon {
+            font-size: 22px;
+        }
+
+        &-text {
+            font-family: var(--font-titulo);
+            font-size: 22px;
+            color: var(--blanco);
+            letter-spacing: 2px;
+
+            span {
+                color: var(--dorado);
+            }
+        }
+    }
+
+    &__links {
+        display: flex;
+        gap: 4px;
+        flex: 1;
+
+        a {
+            padding: 6px 16px;
+            border-radius: var(--radio);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+
+            &:hover {
+                color: var(--blanco);
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            &.active {
+                color: var(--dorado);
+                background: rgba(255, 215, 0, 0.12);
+            }
+        }
+    }
+
+    &__user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    &__username {
+        font-size: 13px;
+        color: var(--gris-claro);
+    }
+
+    .btn--sm {
+        padding: 6px 14px;
+        font-size: 13px;
+    }
+
+    &__hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+
+        span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--blanco);
+            border-radius: 2px;
+            transition: 0.2s;
+        }
+    }
+
+    @media (max-width: 640px) {
+        &__hamburger {
+            display: flex;
+            margin-left: auto;
+        }
+
+        &__user {
+            display: none;
+        }
+
+        &__links {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            flex-direction: column;
+            background: var(--verde-oscuro);
+            border-bottom: 2px solid var(--dorado);
+            padding: 12px 16px;
+            gap: 4px;
+
+            &.open {
+                display: flex;
+            }
+        }
+    }
+}

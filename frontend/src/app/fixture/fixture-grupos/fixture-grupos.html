@@ -1,0 +1,103 @@
+<div class="page">
+
+    <div class="fixture-header">
+        <h1>FASE DE GRUPOS</h1>
+        <p class="text-muted">Completá todos los pronósticos antes del inicio de cada partido</p>
+    </div>
+
+    <div *ngIf="cargando" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando fixture...</p>
+    </div>
+
+    <div *ngIf="error" class="error-msg">{{ error }}</div>
+
+    <ng-container *ngIf="!cargando && !error">
+
+        <!-- Tabs de grupos -->
+        <div class="grupos-tabs">
+            <button *ngFor="let grupo of grupos" class="grupo-tab" [class.active]="grupoActivo === grupo"
+                (click)="grupoActivo = grupo">
+                <span class="grupo-tab__letra">{{ grupo }}</span>
+                <span class="grupo-tab__prog" [class.completo]="progreso(grupo).cargados === progreso(grupo).total">
+                    {{ progreso(grupo).cargados }}/{{ progreso(grupo).total }}
+                </span>
+            </button>
+        </div>
+
+        <!-- Contenido del grupo activo -->
+        <div class="grupo-contenido" *ngIf="fixture[grupoActivo]">
+
+            <div class="jornada-bloque" *ngFor="let jornada of getJornadas(grupoActivo)">
+                <h3 class="jornada-titulo">Jornada {{ jornada }}</h3>
+
+                <div class="partidos-lista">
+                    <div class="partido-row" *ngFor="let partido of getPartidos(grupoActivo, jornada)"
+                        [class.bloqueado]="partido.bloqueado" [class.finalizado]="partido.estado === 'FINALIZADO'">
+
+                        <!-- Estado / resultado real -->
+                        <div class="partido-row__estado">
+                            <span class="badge" [class.badge-pendiente]="partido.estado === 'PENDIENTE'"
+                                [class.badge-en-juego]="partido.estado === 'EN_JUEGO'"
+                                [class.badge-finalizado]="partido.estado === 'FINALIZADO'">
+                                {{ partido.estado === 'PENDIENTE' ? 'Pendiente'
+                                : partido.estado === 'EN_JUEGO' ? 'En juego'
+                                : partido.goles_local + ' - ' + partido.goles_visitante }}
+                            </span>
+                            <span class="partido-row__fecha">
+                                {{ partido.fecha_hora | date:'dd/MM HH:mm' }}
+                            </span>
+                        </div>
+
+                        <!-- Equipos y inputs de pronóstico -->
+                        <div class="partido-row__main">
+
+                            <div class="equipo equipo--local">
+                                <span class="equipo__nombre">{{ partido.equipo_local.nombre }}</span>
+                                <span class="equipo__codigo">{{ partido.equipo_local.codigo_fifa }}</span>
+                            </div>
+
+                            <div class="partido-row__inputs">
+                                <input type="number" min="0" max="20" class="score-input"
+                                    [value]="getInput(partido.id, 'local')" [disabled]="partido.bloqueado"
+                                    (input)="setInput(partido.id, 'local', $any($event.target).value)"
+                                    (blur)="guardar(partido)" placeholder="-" />
+
+                                <span class="vs">VS</span>
+
+                                <input type="number" min="0" max="20" class="score-input"
+                                    [value]="getInput(partido.id, 'visitante')" [disabled]="partido.bloqueado"
+                                    (input)="setInput(partido.id, 'visitante', $any($event.target).value)"
+                                    (blur)="guardar(partido)" placeholder="-" />
+                            </div>
+
+                            <div class="equipo equipo--visitante">
+                                <span class="equipo__codigo">{{ partido.equipo_visitante.codigo_fifa }}</span>
+                                <span class="equipo__nombre">{{ partido.equipo_visitante.nombre }}</span>
+                            </div>
+
+                        </div>
+
+                        <!-- Puntos obtenidos / estado del pronóstico -->
+                        <div class="partido-row__puntos">
+                            <span *ngIf="estaGuardando(partido.id)" class="guardando">⏳</span>
+                            <span *ngIf="!estaGuardando(partido.id) && getPuntos(partido.id) !== null"
+                                [class]="'pts-' + getPuntos(partido.id)">
+                                {{ getPuntos(partido.id) }} pts
+                            </span>
+                            <span
+                                *ngIf="!estaGuardando(partido.id) && getPuntos(partido.id) === null && tienePronostico(partido.id)"
+                                class="text-muted" title="Pronóstico guardado">✓</span>
+                            <span *ngIf="!tienePronostico(partido.id) && !partido.bloqueado"
+                                class="text-muted sin-prono">—</span>
+                            <span *ngIf="partido.bloqueado && !tienePronostico(partido.id)" class="bloq-sin-prono"
+                                title="No pronosticaste">✗</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </ng-container>
+</div>

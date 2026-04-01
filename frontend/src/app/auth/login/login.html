@@ -1,0 +1,37 @@
+<div class="login-page">
+    <div class="login-card">
+
+        <div class="login-card__header">
+            <span class="login-card__icon">⚽</span>
+            <h1>PRODE 2026</h1>
+            <p class="text-muted">Ingresá para jugar con tus amigos</p>
+        </div>
+
+        <div class="login-card__form">
+            <div class="field">
+                <label>Usuario</label>
+                <input class="input" type="text" [(ngModel)]="username" placeholder="tu_usuario"
+                    (keyup.enter)="login()" />
+            </div>
+
+            <div class="field">
+                <label>Contraseña</label>
+                <input class="input" type="password" [(ngModel)]="password" placeholder="••••••••"
+                    (keyup.enter)="login()" />
+            </div>
+
+            <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+            <button class="btn btn-gold btn--full" (click)="login()" [disabled]="cargando">
+                <span *ngIf="!cargando">Entrar</span>
+                <span *ngIf="cargando">Cargando...</span>
+            </button>
+
+            <p class="login-card__footer">
+                ¿No tenés cuenta?
+                <a routerLink="/auth/registro">Registrate</a>
+            </p>
+        </div>
+
+    </div>
+</div>

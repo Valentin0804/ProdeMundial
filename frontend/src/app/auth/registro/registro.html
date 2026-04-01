@@ -1,0 +1,57 @@
+<div class="login-page">
+    <div class="login-card">
+
+        <div class="login-card__header">
+            <span class="login-card__icon">⚽</span>
+            <h1>REGISTRARSE</h1>
+            <p class="text-muted">Creá tu cuenta para el Prode 2026</p>
+        </div>
+
+        <div class="login-card__form">
+            <div class="fields-row">
+                <div class="field">
+                    <label>Nombre</label>
+                    <input class="input" type="text" [(ngModel)]="form.first_name" placeholder="Juan" />
+                </div>
+                <div class="field">
+                    <label>Apellido</label>
+                    <input class="input" type="text" [(ngModel)]="form.last_name" placeholder="Pérez" />
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Usuario <span class="required">*</span></label>
+                <input class="input" type="text" [(ngModel)]="form.username" placeholder="juanperez10" />
+            </div>
+
+            <div class="field">
+                <label>Email</label>
+                <input class="input" type="email" [(ngModel)]="form.email" placeholder="juan@mail.com" />
+            </div>
+
+            <div class="field">
+                <label>Contraseña <span class="required">*</span></label>
+                <input class="input" type="password" [(ngModel)]="form.password" placeholder="••••••••" />
+            </div>
+
+            <div class="field">
+                <label>Repetir contraseña <span class="required">*</span></label>
+                <input class="input" type="password" [(ngModel)]="form.password2" placeholder="••••••••"
+                    (keyup.enter)="registrar()" />
+            </div>
+
+            <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+            <button class="btn btn-gold btn--full" (click)="registrar()" [disabled]="cargando">
+                <span *ngIf="!cargando">Crear cuenta</span>
+                <span *ngIf="cargando">Registrando...</span>
+            </button>
+
+            <p class="login-card__footer">
+                ¿Ya tenés cuenta?
+                <a routerLink="/auth/login">Iniciar sesión</a>
+            </p>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+
+// ── Variables FIFA ──────────────────────────────────────────────
+:root {
+    --verde: #006633;
+    --verde-oscuro: #004422;
+    --verde-claro: #00994d;
+    --dorado: #FFD700;
+    --dorado-oscuro: #C9A800;
+    --negro: #0a0f0d;
+    --gris-oscuro: #1a1f1c;
+    --gris-medio: #2a2f2c;
+    --gris-claro: #8a9a8e;
+    --blanco: #f0f5f2;
+    --rojo: #e63946;
+    --font-titulo: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --radio: 8px;
+    --sombra: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+// ── Reset ───────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    background: var(--negro);
+    color: var(--blanco);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+// ── Scrollbar ───────────────────────────────────────────────────
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gris-oscuro);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--verde);
+    border-radius: 3px;
+}
+
+// ── Tipografía ──────────────────────────────────────────────────
+h1,
+h2,
+h3 {
+    font-family: var(--font-titulo);
+    letter-spacing: 1px;
+    color: var(--dorado);
+}
+
+// ── Botones ─────────────────────────────────────────────────────
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--radio);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+
+    &-primary {
+        background: var(--verde);
+        color: var(--blanco);
+
+        &:hover {
+            background: var(--verde-claro);
+        }
+    }
+
+    &-gold {
+        background: var(--dorado);
+        color: var(--negro);
+
+        &:hover {
+            background: var(--dorado-oscuro);
+        }
+    }
+
+    &-outline {
+        background: transparent;
+        border: 1px solid var(--verde);
+        color: var(--verde-claro);
+
+        &:hover {
+            background: var(--verde);
+            color: var(--blanco);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+// ── Cards ───────────────────────────────────────────────────────
+.card {
+    background: var(--gris-oscuro);
+    border: 1px solid rgba(0, 102, 51, 0.3);
+    border-radius: var(--radio);
+    padding: 20px;
+    box-shadow: var(--sombra);
+}
+
+// ── Inputs ──────────────────────────────────────────────────────
+.input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--gris-medio);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radio);
+    color: var(--blanco);
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: border-color 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: var(--verde-claro);
+    }
+
+    &::placeholder {
+        color: var(--gris-claro);
+    }
+}
+
+// ── Badges de estado ────────────────────────────────────────────
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &-pendiente {
+        background: rgba(255, 215, 0, 0.15);
+        color: var(--dorado);
+    }
+
+    &-en-juego {
+        background: rgba(0, 153, 77, 0.2);
+        color: var(--verde-claro);
+    }
+
+    &-finalizado {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--gris-claro);
+    }
+}
+
+// ── Puntos ──────────────────────────────────────────────────────
+.pts-3 {
+    color: var(--dorado);
+    font-weight: 700;
+}
+
+.pts-2 {
+    color: var(--verde-claro);
+    font-weight: 600;
+}
+
+.pts-1 {
+    color: var(--gris-claro);
+}
+
+.pts-0 {
+    color: var(--rojo);
+}
+
+// ── Layout util ─────────────────────────────────────────────────
+.page {
+    padding: 24px 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gap-8 {
+    gap: 8px;
+}
+
+.gap-16 {
+    gap: 16px;
+}
+
+.mt-16 {
+    margin-top: 16px;
+}
+
+.mt-24 {
+    margin-top: 24px;
+}
+
+.text-gold {
+    color: var(--dorado);
+}
+
+.text-green {
+    color: var(--verde-claro);
+}
+
+.text-muted {
+    color: var(--gris-claro);
+}
+
+.text-center {
+    text-align: center;
+}

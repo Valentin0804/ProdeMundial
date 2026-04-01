@@ -1,0 +1,26 @@
+<nav class="navbar">
+    <div class="navbar__inner">
+
+        <a routerLink="/fixture" class="navbar__logo">
+            <span class="navbar__logo-icon">⚽</span>
+            <span class="navbar__logo-text">PRODE <span>2026</span></span>
+        </a>
+
+        <div class="navbar__links" [class.open]="menuAbierto">
+            <a routerLink="/fixture" routerLinkActive="active" (click)="menuAbierto=false">Fixture</a>
+            <a routerLink="/bracket" routerLinkActive="active" (click)="menuAbierto=false">Mi Bracket</a>
+            <a routerLink="/premios" routerLinkActive="active" (click)="menuAbierto=false">Premios</a>
+            <a routerLink="/ranking" routerLinkActive="active" (click)="menuAbierto=false">Ranking</a>
+        </div>
+
+        <div class="navbar__user">
+            <span class="navbar__username">{{ usuario }}</span>
+            <button class="btn btn-outline btn--sm" (click)="logout()">Salir</button>
+        </div>
+
+        <button class="navbar__hamburger" (click)="toggleMenu()">
+            <span></span><span></span><span></span>
+        </button>
+
+    </div>
+</nav>

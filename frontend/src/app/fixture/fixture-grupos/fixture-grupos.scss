@@ -1,0 +1,235 @@
+.fixture-header {
+    margin-bottom: 24px;
+
+    h1 {
+        font-size: 32px;
+        margin-bottom: 4px;
+    }
+}
+
+// ── Tabs de grupos ──────────────────────────────────────────────
+.grupos-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 24px;
+}
+
+.grupo-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 14px;
+    background: var(--gris-medio);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radio);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 56px;
+
+    &__letra {
+        font-family: var(--font-titulo);
+        font-size: 20px;
+        color: var(--blanco);
+    }
+
+    &__prog {
+        font-size: 10px;
+        color: var(--gris-claro);
+
+        &.completo {
+            color: var(--verde-claro);
+        }
+    }
+
+    &.active {
+        background: var(--verde);
+        border-color: var(--dorado);
+
+        .grupo-tab__letra {
+            color: var(--dorado);
+        }
+    }
+
+    &:hover:not(.active) {
+        border-color: var(--verde);
+    }
+}
+
+// ── Jornada ─────────────────────────────────────────────────────
+.jornada-titulo {
+    font-size: 13px;
+    font-family: var(--font-body);
+    color: var(--gris-claro);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    margin-top: 20px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+// ── Partido row ─────────────────────────────────────────────────
+.partido-row {
+    background: var(--gris-oscuro);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radio);
+    padding: 12px 16px;
+    margin-bottom: 6px;
+    transition: border-color 0.2s;
+
+    &:hover {
+        border-color: rgba(0, 153, 77, 0.3);
+    }
+
+    &.bloqueado {
+        opacity: 0.7;
+    }
+
+    &.finalizado {
+        border-left: 3px solid var(--verde-claro);
+    }
+
+    &__estado {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    &__fecha {
+        font-size: 11px;
+        color: var(--gris-claro);
+        margin-left: auto;
+    }
+
+    &__main {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__inputs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__puntos {
+        display: flex;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 8px;
+        min-height: 20px;
+    }
+}
+
+// ── Equipos ─────────────────────────────────────────────────────
+.equipo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    &__nombre {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--blanco);
+    }
+
+    &__codigo {
+        font-size: 11px;
+        color: var(--gris-claro);
+        letter-spacing: 1px;
+    }
+
+    &--visitante {
+        text-align: right;
+        align-items: flex-end;
+    }
+}
+
+// ── Score inputs ─────────────────────────────────────────────────
+.score-input {
+    width: 52px;
+    height: 44px;
+    text-align: center;
+    font-size: 20px;
+    font-family: var(--font-titulo);
+    background: var(--gris-medio);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radio);
+    color: var(--dorado);
+    transition: border-color 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: var(--verde-claro);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    // Ocultar flechas del input number
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+
+    -moz-appearance: textfield;
+}
+
+.vs {
+    font-family: var(--font-titulo);
+    font-size: 14px;
+    color: var(--gris-claro);
+    letter-spacing: 1px;
+}
+
+// ── Loading ──────────────────────────────────────────────────────
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 60px;
+    color: var(--gris-claro);
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--verde-claro);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.guardando {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1
+    }
+
+    50% {
+        opacity: 0.4
+    }
+}
+
+.bloq-sin-prono {
+    color: var(--rojo);
+}
