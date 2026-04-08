@@ -35,6 +35,11 @@
 
             <div class="grupos-list" *ngIf="!cargando && misGrupos.length > 0">
                 <div class="grupo-card" *ngFor="let grupo of misGrupos" [class.is-admin]="grupo.es_admin">
+                    <div class="grupo-actions">
+                        <button (click)="abrirDetalleGrupo(grupo.id); $event.stopPropagation()" class="btn-ver-ranking">
+                            {{ grupo.es_admin ? '⚙️ Gestionar Grupo' : '🏆 Ver Ranking' }}
+                        </button>
+                    </div>
                     <div class="grupo-main-info">
                         <div class="grupo-title-wrapper">
                             <span class="crown-icon" *ngIf="grupo.es_admin" title="Sos Admin">👑</span>
@@ -103,3 +108,5 @@
 
     </div>
 </div>
+<app-detalle-grupo *ngIf="grupoSeleccionadoId" [grupoId]="grupoSeleccionadoId" (onCerrar)="grupoSeleccionadoId = null">
+</app-detalle-grupo>

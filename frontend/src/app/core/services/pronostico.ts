@@ -15,7 +15,7 @@ export interface Pronostico {
 export interface RankingItem {
   posicion: number;
   usuario: string;
-  avatar: string | null;
+  avatar?: string | null;
   puntos_totales: number;
   exactos: number;
   acertados: number;

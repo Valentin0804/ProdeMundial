@@ -5,26 +5,32 @@ import { environment } from '../../../environments/environments';
 
 @Injectable({ providedIn: 'root' })
 export class GrupoService {
-    // Ajustá esto según tu urls.py (probablemente /api/usuarios/grupos/)
     private apiUrl = `${environment.apiUrl}/auth/grupos/`;
-
     constructor(private http: HttpClient) { }
 
-    // GET: Listar mis grupos
     getMisGrupos(): Observable<any[]> {
         return this.http.get<any[]>(this.apiUrl);
     }
 
-    // POST: Crear grupo
     crearGrupo(nombre: string): Observable<any> {
         return this.http.post<any>(this.apiUrl, { nombre });
     }
 
-    // POST: Unirse con código
     unirseAGrupo(codigo: string): Observable<any> {
-        // Apunta a la función unirse_grupo de tu views.py
-        return this.http.post<any>(`${environment.apiUrl}/usuarios/unirse-grupo/`, {
+        return this.http.post<any>(`${this.apiUrl}unirse/`, {
             codigo_invitacion: codigo
         });
+    }
+
+    getDetalleModal(grupoId: number): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}${grupoId}/detalle-modal/`);
+    }
+
+    eliminarMiembro(grupoId: number, usuarioId: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}${grupoId}/miembros/${usuarioId}/`);
+    }
+
+    salirDelGrupo(grupoId: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}${grupoId}/salir/`);
     }
 }

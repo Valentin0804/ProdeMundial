@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-crear-grupo',
-    standalone: false, // Recordá usar false ya que usamos módulos
+    standalone: false,
     templateUrl: './crear-grupo.html',
     styleUrls: ['./crear-grupo.scss']
 })

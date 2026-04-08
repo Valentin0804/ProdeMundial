@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import Usuario, GrupoPrivado, Miembro
-
+from apps.fixture.serializers import JugadorSerializer
+from apps.premios.models import PronosticoPremio
 
 class RegistroSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -56,3 +57,23 @@ class MiembroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Miembro
         fields = ('id', 'usuario', 'fecha_union')
+
+
+class PronosticoPremioSerializer(serializers.ModelSerializer):
+    bota_de_oro_detalle = JugadorSerializer(source='bota_de_oro', read_only=True)
+    guante_de_oro_detalle = JugadorSerializer(source='guante_de_oro', read_only=True)
+    balon_de_oro_detalle = JugadorSerializer(source='balon_de_oro', read_only=True)
+    mejor_joven_detalle = JugadorSerializer(source='mejor_joven', read_only=True)
+    
+    bloqueado = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PronosticoPremio
+        fields = (
+            'id', 'bota_de_oro', 'bota_de_oro_detalle',
+            'guante_de_oro', 'guante_de_oro_detalle',
+            'balon_de_oro', 'balon_de_oro_detalle',
+            'mejor_joven', 'mejor_joven_detalle',
+            'puntos_obtenidos', 'bloqueado'
+        )
+        read_only_fields = ('id', 'puntos_obtenidos')

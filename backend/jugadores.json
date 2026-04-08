@@ -1,0 +1,282 @@
+[
+  {
+    "nombre": "Lionel Messi",
+    "equipo": "Argentina",
+    "equipo_codigo": "ar",
+    "posicion": "DEL",
+    "club": "Inter Miami"
+  },
+  {
+    "nombre": "Emiliano Martínez",
+    "equipo": "Argentina",
+    "equipo_codigo": "ar",
+    "posicion": "POR",
+    "club": "Aston Villa"
+  },
+  {
+    "nombre": "Lautaro Martínez",
+    "equipo": "Argentina",
+    "equipo_codigo": "ar",
+    "posicion": "DEL",
+    "club": "Inter Milan"
+  },
+  {
+    "nombre": "Julián Álvarez",
+    "equipo": "Argentina",
+    "equipo_codigo": "ar",
+    "posicion": "DEL",
+    "club": "Atlético Madrid"
+  },
+  {
+    "nombre": "Alexis Mac Allister",
+    "equipo": "Argentina",
+    "equipo_codigo": "ar",
+    "posicion": "MED",
+    "club": "Liverpool"
+  },
+  {
+    "nombre": "Kylian Mbappé",
+    "equipo": "Francia",
+    "equipo_codigo": "fr",
+    "posicion": "DEL",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Antoine Griezmann",
+    "equipo": "Francia",
+    "equipo_codigo": "fr",
+    "posicion": "DEL",
+    "club": "Atlético Madrid"
+  },
+  {
+    "nombre": "Mike Maignan",
+    "equipo": "Francia",
+    "equipo_codigo": "fr",
+    "posicion": "POR",
+    "club": "AC Milan"
+  },
+  {
+    "nombre": "Vinícius Jr",
+    "equipo": "Brasil",
+    "equipo_codigo": "br",
+    "posicion": "DEL",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Rodrygo",
+    "equipo": "Brasil",
+    "equipo_codigo": "br",
+    "posicion": "DEL",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Alisson Becker",
+    "equipo": "Brasil",
+    "equipo_codigo": "br",
+    "posicion": "POR",
+    "club": "Liverpool"
+  },
+  {
+    "nombre": "Jude Bellingham",
+    "equipo": "Inglaterra",
+    "equipo_codigo": "gb-eng",
+    "posicion": "MED",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Harry Kane",
+    "equipo": "Inglaterra",
+    "equipo_codigo": "gb-eng",
+    "posicion": "DEL",
+    "club": "Bayern Munich"
+  },
+  {
+    "nombre": "Phil Foden",
+    "equipo": "Inglaterra",
+    "equipo_codigo": "gb-eng",
+    "posicion": "DEL",
+    "club": "Manchester City"
+  },
+  {
+    "nombre": "Erling Haaland",
+    "equipo": "Noruega",
+    "equipo_codigo": "no",
+    "posicion": "DEL",
+    "club": "Manchester City"
+  },
+  {
+    "nombre": "Lamine Yamal",
+    "equipo": "España",
+    "equipo_codigo": "es",
+    "posicion": "DEL",
+    "club": "FC Barcelona"
+  },
+  {
+    "nombre": "Rodri",
+    "equipo": "España",
+    "equipo_codigo": "es",
+    "posicion": "MED",
+    "club": "Manchester City"
+  },
+  {
+    "nombre": "Nico Williams",
+    "equipo": "España",
+    "equipo_codigo": "es",
+    "posicion": "DEL",
+    "club": "Athletic Club"
+  },
+  {
+    "nombre": "Unai Simón",
+    "equipo": "España",
+    "equipo_codigo": "es",
+    "posicion": "POR",
+    "club": "Athletic Club"
+  },
+  {
+    "nombre": "Kevin De Bruyne",
+    "equipo": "Bélgica",
+    "equipo_codigo": "be",
+    "posicion": "MED",
+    "club": "Manchester City"
+  },
+  {
+    "nombre": "Thibaut Courtois",
+    "equipo": "Bélgica",
+    "equipo_codigo": "be",
+    "posicion": "POR",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Federico Valverde",
+    "equipo": "Uruguay",
+    "equipo_codigo": "uy",
+    "posicion": "MED",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Darwin Núñez",
+    "equipo": "Uruguay",
+    "equipo_codigo": "uy",
+    "posicion": "DEL",
+    "club": "Liverpool"
+  },
+  {
+    "nombre": "Luis Díaz",
+    "equipo": "Colombia",
+    "equipo_codigo": "co",
+    "posicion": "DEL",
+    "club": "Liverpool"
+  },
+  {
+    "nombre": "James Rodríguez",
+    "equipo": "Colombia",
+    "equipo_codigo": "co",
+    "posicion": "MED",
+    "club": "Rayo Vallecano"
+  },
+  {
+    "nombre": "Mohamed Salah",
+    "equipo": "Egipto",
+    "equipo_codigo": "eg",
+    "posicion": "DEL",
+    "club": "Liverpool"
+  },
+  {
+    "nombre": "Jamal Musiala",
+    "equipo": "Alemania",
+    "equipo_codigo": "de",
+    "posicion": "MED",
+    "club": "Bayern Munich"
+  },
+  {
+    "nombre": "Florian Wirtz",
+    "equipo": "Alemania",
+    "equipo_codigo": "de",
+    "posicion": "MED",
+    "club": "Bayer Leverkusen"
+  },
+  {
+    "nombre": "Manuel Neuer",
+    "equipo": "Alemania",
+    "equipo_codigo": "de",
+    "posicion": "POR",
+    "club": "Bayern Munich"
+  },
+  {
+    "nombre": "Cristiano Ronaldo",
+    "equipo": "Portugal",
+    "equipo_codigo": "pt",
+    "posicion": "DEL",
+    "club": "Al Nassr"
+  },
+  {
+    "nombre": "Bernardo Silva",
+    "equipo": "Portugal",
+    "equipo_codigo": "pt",
+    "posicion": "MED",
+    "club": "Manchester City"
+  },
+  {
+    "nombre": "Bruno Fernandes",
+    "equipo": "Portugal",
+    "equipo_codigo": "pt",
+    "posicion": "MED",
+    "club": "Manchester United"
+  },
+  {
+    "nombre": "Rafael Leão",
+    "equipo": "Portugal",
+    "equipo_codigo": "pt",
+    "posicion": "DEL",
+    "club": "AC Milan"
+  },
+  {
+    "nombre": "Luka Modric",
+    "equipo": "Croacia",
+    "equipo_codigo": "hr",
+    "posicion": "MED",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Jan Oblak",
+    "equipo": "Eslovenia",
+    "equipo_codigo": "si",
+    "posicion": "POR",
+    "club": "Atlético Madrid"
+  },
+  {
+    "nombre": "Marc-André ter Stegen",
+    "equipo": "Alemania",
+    "equipo_codigo": "de",
+    "posicion": "POR",
+    "club": "FC Barcelona"
+  },
+  {
+    "nombre": "Bukayo Saka",
+    "equipo": "Inglaterra",
+    "equipo_codigo": "gb-eng",
+    "posicion": "DEL",
+    "club": "Arsenal"
+  },
+  {
+    "nombre": "Cole Palmer",
+    "equipo": "Inglaterra",
+    "equipo_codigo": "gb-eng",
+    "posicion": "MED",
+    "club": "Chelsea"
+  },
+  {
+    "nombre": "Arda Güler",
+    "equipo": "Turquía",
+    "equipo_codigo": "tr",
+    "posicion": "MED",
+    "club": "Real Madrid"
+  },
+  {
+    "nombre": "Endrick",
+    "equipo": "Brasil",
+    "equipo_codigo": "br",
+    "posicion": "DEL",
+    "club": "Real Madrid"
+  }
+]

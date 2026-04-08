@@ -1,0 +1,53 @@
+<div class="modal-overlay" (click)="cerrar()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+        <div *ngIf="cargando" class="loader">Cargando grupo...</div>
+
+        <ng-container *ngIf="!cargando && infoGrupo">
+            <div class="modal-header">
+                <h2>{{ infoGrupo.nombre_grupo }}</h2>
+                <div class="badge-codigo">Código: {{ infoGrupo.codigo_invitacion }}</div>
+            </div>
+
+            <div class="tabla-container">
+                <table class="ranking-miembros">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Jugador</th>
+                            <th>Pts</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let m of infoGrupo.miembros; let i = index" [class.es-yo]="m.id === idLogueado">
+                            <td>{{ i + 1 }}</td>
+                            <td>
+                                {{ m.username }}
+                                <span *ngIf="m.es_creador" title="Administrador">👑</span>
+                            </td>
+                            <td><strong>{{ m.puntos }}</strong></td>
+                            <td class="acciones">
+                                <button *ngIf="infoGrupo.ya_complete_mi_prode && m.id !== idLogueado"
+                                    (click)="verPredicciones(m.id)" class="btn-icon" title="Ver Pronósticos">
+                                    👁️
+                                </button>
+
+                                <button *ngIf="infoGrupo.soy_admin && !m.es_creador" (click)="eliminarMiembro(m.id)"
+                                    class="btn-icon btn-del" title="Eliminar del grupo">
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button (click)="salirDelGrupo()" class="btn-salir">Salir del Grupo</button>
+                <button (click)="cerrar()" class="btn-cerrar">Cerrar</button>
+            </div>
+        </ng-container>
+
+    </div>
+</div>

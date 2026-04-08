@@ -2,9 +2,7 @@ from django.db import models
 from apps.usuarios.models import Usuario
 from apps.fixture.models import Partido
 
-
 class Pronostico(models.Model):
-    """Pronóstico de un partido de fase de grupos"""
     usuario = models.ForeignKey(
         Usuario, on_delete=models.CASCADE, related_name='pronosticos'
     )
@@ -67,7 +65,6 @@ class Pronostico(models.Model):
         return 0
 
     def save(self, *args, **kwargs):
-        # Recalcular puntos si el partido ya tiene resultado
         if self.partido.goles_local is not None:
             self.puntos_obtenidos = self.calcular_puntos()
         super().save(*args, **kwargs)

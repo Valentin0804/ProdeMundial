@@ -1,44 +1,16 @@
-from rest_framework import serializers, generics, status
+from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.urls import path
-from django.db.models import Sum, Count, Q
-from .models import Pronostico
+from django.db.models import Sum, Count, Q, Max
+from django.db.models.functions import Coalesce
+import random
+from datetime import date
 from apps.fixture.models import Partido
-from apps.fixture.serializers import PartidoSerializer
 from apps.usuarios.models import Usuario, GrupoPrivado
+from .serializers import PronosticoSerializer
+from .models import Pronostico
 
-
-# ───── Serializers ─────
-
-class PronosticoSerializer(serializers.ModelSerializer):
-    partido_detalle = PartidoSerializer(source='partido', read_only=True)
-    bloqueado = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Pronostico
-        fields = (
-            'id', 'partido', 'partido_detalle',
-            'goles_local', 'goles_visitante',
-            'puntos_obtenidos', 'bloqueado',
-            'creado_en', 'modificado_en',
-        )
-        read_only_fields = ('id', 'puntos_obtenidos', 'creado_en', 'modificado_en')
-
-    def get_bloqueado(self, obj):
-        return obj.partido.bloqueado
-
-    def validate(self, attrs):
-        partido = attrs.get('partido') or self.instance.partido
-        if partido.bloqueado:
-            raise serializers.ValidationError(
-                'El partido ya comenzó, no podés modificar el pronóstico.'
-            )
-        return attrs
-
-
-# ───── Views ─────
 
 class PronosticoListCreateView(generics.ListCreateAPIView):
     serializer_class = PronosticoSerializer
@@ -61,31 +33,61 @@ class PronosticoUpdateView(generics.UpdateAPIView):
         return Pronostico.objects.filter(usuario=self.request.user)
 
 
+def guardar_pronostico(request):
+    user = request.user
+    datos = request.data
+    
+    claves_premios = ['bota_de_oro', 'balon_de_oro', 'guante_de_oro', 'mejor_joven']
+    
+    pronostico, created = Pronostico.objects.get_or_create(user=user)
+    
+    if pronostico.premios_bloqueados:
+        return Response({"error": "Los premios ya han sido enviados y están bloqueados."}, 
+                        status=status.HTTP_403_FORBIDDEN)
+
+    completos = all(getattr(pronostico, key) is not None for key in claves_premios)
+    if completos:
+        pronostico.premios_bloqueados = True
+        pronostico.save()
+
+    return Response({"message": "Guardado exitosamente", "bloqueado": pronostico.premios_bloqueados})
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def ranking_global(request):
-    """Tabla de posiciones global ordenada por puntos totales"""
-    usuarios = Usuario.objects.annotate(
-        puntos_totales=Sum('pronosticos__puntos_obtenidos'),
+    usuarios_qs = Usuario.objects.annotate(
+        puntos_totales=Coalesce(Sum('pronosticos__puntos_obtenidos'), 0),
         exactos=Count('pronosticos', filter=Q(pronosticos__puntos_obtenidos=3)),
-        acertados=Count('pronosticos', filter=Q(pronosticos__puntos_obtenidos__gte=1)),
-        jugados=Count('pronosticos', filter=Q(pronosticos__puntos_obtenidos__isnull=False)),
-    ).order_by('-puntos_totales', '-exactos')
+    )
 
-    data = [
-        {
+    max_puntos = usuarios_qs.aggregate(Max('puntos_totales'))['puntos_totales__max'] or 0
+
+    if max_puntos == 0:
+        usuarios_list = list(usuarios_qs)
+        random.seed(date.today().strftime("%Y%m%d"))
+        random.shuffle(usuarios_list)
+    else:
+        usuarios_list = list(usuarios_qs.order_by('-puntos_totales', '-exactos', 'username'))
+
+    full_ranking = []
+    mi_posicion_data = None
+
+    for i, u in enumerate(usuarios_list):
+        user_data = {
             'posicion': i + 1,
             'usuario': u.username,
-            'avatar': u.avatar.url if u.avatar else None,
-            'puntos_totales': u.puntos_totales or 0,
+            'puntos_totales': u.puntos_totales,
             'exactos': u.exactos,
-            'acertados': u.acertados,
-            'jugados': u.jugados,
         }
-        for i, u in enumerate(usuarios)
-    ]
-    return Response(data)
+        full_ranking.append(user_data)
+        if u.id == request.user.id:
+            mi_posicion_data = user_data
 
+    return Response({
+        'top_100': full_ranking[:100],
+        'mi_posicion': mi_posicion_data,
+        'torneo_empezado': max_puntos > 0
+    })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -112,13 +114,3 @@ def ranking_grupo(request, grupo_id):
         for i, u in enumerate(usuarios)
     ]
     return Response(data)
-
-
-# ───── URLs ─────
-
-urlpatterns = [
-    path('',                    PronosticoListCreateView.as_view()),
-    path('<int:pk>/',           PronosticoUpdateView.as_view()),
-    path('ranking/global/',     ranking_global),
-    path('ranking/grupo/<int:grupo_id>/', ranking_grupo),
-]

@@ -1,1 +1,41 @@
-<p>tabla-global works!</p>
+<div class="ranking-container">
+    <div class="filtros">
+        <button (click)="aplicarFiltro(5)" [class.active]="filtroActual === 5">Top 5</button>
+        <button (click)="aplicarFiltro(10)" [class.active]="filtroActual === 10">Top 10</button>
+        <button (click)="aplicarFiltro(50)" [class.active]="filtroActual === 50">Top 50</button>
+        <button (click)="aplicarFiltro(100)" [class.active]="filtroActual === 100">Top 100</button>
+    </div>
+    <div *ngIf="!torneoEmpezado" class="alert-info">
+        ⚽ El torneo aún no ha comenzado. ¡El orden actual es aleatorio!
+    </div>
+    <table class="ranking-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Usuario</th>
+                <th>Puntos</th>
+                <th>Exactos</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of rankingFiltrado" [class.es-usuario-actual]="item.usuario === miPosicion?.usuario">
+                <td>{{ item.posicion }}</td>
+                <td>{{ item.usuario }}</td>
+                <td>{{ item.puntos_totales }}</td>
+                <td>{{ item.exactos }}</td>
+            </tr>
+
+            <ng-container *ngIf="!estaEnTablaVisible() && miPosicion">
+                <tr class="separador">
+                    <td colspan="4">...</td>
+                </tr>
+                <tr class="es-usuario-actual">
+                    <td>#{{ miPosicion.posicion }}</td>
+                    <td>{{ miPosicion.usuario }} (Vos)</td>
+                    <td>{{ miPosicion.puntos_totales }}</td>
+                    <td>{{ miPosicion.exactos }}</td>
+                </tr>
+            </ng-container>
+        </tbody>
+    </table>
+</div>

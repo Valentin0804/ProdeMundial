@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CrearGrupoComponent } from './crear-grupo/crear-grupo';
+import { UnirseGrupoComponent } from './unirse-grupo/unirse-grupo';
 
 const routes: Routes = [
     { path: 'crear', component: CrearGrupoComponent },
-    // Aquí podrías agregar después: { path: 'lista', component: ListaGruposComponent }
+    { path: 'unirse', component: UnirseGrupoComponent },
+
 ];
 
 @NgModule({

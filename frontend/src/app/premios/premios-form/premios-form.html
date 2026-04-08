@@ -1,1 +1,83 @@
-<p>premios-form works!</p>
+<div class="premios-container" [class.is-locked]="estaBloqueado">
+
+    <div *ngIf="estaBloqueado" class="locked-banner">
+        🔒 Tus pronósticos han sido enviados. ¡Mucha suerte!
+    </div>
+
+    <div class="premio-card" *ngFor="let cat of categorias" [class.disabled]="estaBloqueado">
+        <div class="card-header">
+            <h4>{{ cat.titulo }}</h4>
+            <span class="puntos-tag">{{ cat.puntos }} pts</span>
+        </div>
+
+        <div class="player-slot" (click)="!estaBloqueado && abrirBuscador(cat.key)">
+            <ng-container *ngIf="pronostico[cat.key + '_detalle'] as jugador; else emptySlot">
+                <div class="player-image-wrapper">
+                    <div class="iniciales-circulo-small">
+                        {{ jugador.nombre.charAt(0) }}{{ jugador.nombre.split(' ')[1]?.charAt(0) || '' }}
+                    </div>
+                    <img [src]="getBandera(jugador.equipo_codigo)" class="flag-badge">
+                </div>
+                <div class="player-name">{{ jugador.nombre }}</div>
+            </ng-container>
+
+            <ng-template #emptySlot>
+                <div class="empty-state">
+                    <span class="plus-icon">+</span>
+                    <p>Elegir {{ cat.titulo }}</p>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</div>
+
+<div class="actions-footer" *ngIf="!estaBloqueado">
+    <button class="btn-primary" (click)="mostrarModalConfirmar = true">
+        Finalizar y Enviar
+    </button>
+</div>
+
+<div class="search-overlay" *ngIf="buscandoEn" (click)="buscandoEn = null">
+    <div class="search-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Elegir {{ buscandoEn.replace('_', ' ') | titlecase }}</h3>
+            <button class="btn-close-x" (click)="buscandoEn = null">×</button>
+        </div>
+
+        <input #searchInput type="text" placeholder="Escribí para buscar..." (input)="filtrar($event)"
+            class="search-input" autoFocus>
+
+        <div class="results">
+            <div class="result-item" *ngFor="let p of candidatosFiltrados" (click)="seleccionar(p)">
+                <div class="jugador-card-row">
+                    <div class="iniciales-circulo">
+                        {{ p.nombre.charAt(0) }}{{ p.nombre.split(' ')[1]?.charAt(0) || '' }}
+                    </div>
+                    <div class="info">
+                        <div class="name-row">
+                            <h3>{{ p.nombre }}</h3>
+                            <img [src]="getBandera(p.equipo_codigo)" class="mini-flag">
+                        </div>
+                        <span class="badge-pos">{{ p.posicion }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModalConfirmar">
+    <div class="modal-content">
+        <h3>¿Confirmar selección?</h3>
+        <p>Una vez enviado, no podrás modificar tus candidatos para los premios individuales.</p>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" (click)="mostrarModalConfirmar = false">Revisar</button>
+            <button class="btn-confirm" (click)="confirmarEnvio()" [disabled]="guardando">
+                {{ guardando ? 'Enviando...' : 'Sí, confirmar' }}
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,14 +1,8 @@
 from django.db import models
-from django.urls import path
-from rest_framework import serializers, generics, permissions
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
 from apps.usuarios.models import Usuario
 from apps.fixture.models import Jugador, Partido
 from django.utils import timezone
 
-
-# ─── Models ──────────────────────────────────────────────────────────────────
 
 class ResultadoPremios(models.Model):
     """Resultado real de los premios (lo carga el admin al final del torneo)"""
@@ -100,79 +94,3 @@ def premios_bloqueados():
         return False
     return timezone.now() >= primer_partido.fecha_hora - timezone.timedelta(minutes=5)
 
-
-# ─── Serializers ─────────────────────────────────────────────────────────────
-
-class PronosticoPremioSerializer(serializers.ModelSerializer):
-    bloqueado = serializers.SerializerMethodField()
-
-    class Meta:
-        model = PronosticoPremio
-        fields = (
-            'id', 'bota_de_oro', 'guante_de_oro', 'balon_de_oro', 'mejor_joven',
-            'puntos_obtenidos', 'bloqueado', 'creado_en', 'modificado_en',
-        )
-        read_only_fields = ('id', 'puntos_obtenidos', 'creado_en', 'modificado_en')
-
-    def get_bloqueado(self, obj):
-        return premios_bloqueados()
-
-    def validate(self, attrs):
-        if premios_bloqueados():
-            raise serializers.ValidationError(
-                'El torneo ya comenzó, no podés modificar los pronósticos de premios.'
-            )
-        # Validar que mejor_joven sea realmente sub-21
-        mejor_joven = attrs.get('mejor_joven')
-        if mejor_joven and not mejor_joven.es_sub21:
-            raise serializers.ValidationError(
-                {'mejor_joven': 'El jugador seleccionado no es sub-21.'}
-            )
-        return attrs
-
-
-# ─── Views ───────────────────────────────────────────────────────────────────
-
-class PronosticoPremioView(generics.RetrieveUpdateAPIView):
-    serializer_class = PronosticoPremioSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self):
-        obj, _ = PronosticoPremio.objects.get_or_create(usuario=self.request.user)
-        return obj
-
-
-@api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
-def candidatos_premios(request):
-    """
-    Devuelve los jugadores candidatos para cada premio.
-    - Bota de Oro y Balón de Oro: todos los jugadores
-    - Guante de Oro: solo porteros
-    - Mejor Joven: solo sub-21
-    """
-    from apps.fixture.serializers import JugadorSerializer
-    from apps.fixture.models import Jugador
-
-    return Response({
-        'bota_de_oro': JugadorSerializer(
-            Jugador.objects.select_related('equipo'), many=True
-        ).data,
-        'guante_de_oro': JugadorSerializer(
-            Jugador.objects.filter(posicion='POR').select_related('equipo'), many=True
-        ).data,
-        'balon_de_oro': JugadorSerializer(
-            Jugador.objects.select_related('equipo'), many=True
-        ).data,
-        'mejor_joven': JugadorSerializer(
-            Jugador.objects.filter(edad__lte=21).select_related('equipo'), many=True
-        ).data,
-    })
-
-
-# ─── URLs ────────────────────────────────────────────────────────────────────
-
-urlpatterns = [
-    path('',            PronosticoPremioView.as_view()),
-    path('candidatos/', candidatos_premios),
-]

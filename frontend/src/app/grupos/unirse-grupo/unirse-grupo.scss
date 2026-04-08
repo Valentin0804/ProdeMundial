@@ -1,0 +1,158 @@
+// VARIABLES CONSISTENTES
+$primary-color: #002D62;
+$secondary-color: #007bff;
+$bg-color: #f1f5f9;
+$card-bg: #ffffff;
+$text-main: #1e293b;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$error-color: #ef4444;
+$success-color: #10b981;
+
+.unirse-grupo-container {
+    background: $card-bg;
+    padding: 30px;
+    border-radius: 20px; // Un poco más redondeado para un look moderno
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    border: 1px solid $border-color;
+    max-width: 480px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+
+    h3 {
+        color: $primary-color;
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .text-muted {
+        color: $text-muted;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+
+    // INPUT DE CÓDIGO
+    .input {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.2rem; // Texto más grande para el código
+        font-family: 'Courier New', Courier, monospace; // Estilo código
+        font-weight: 700;
+        letter-spacing: 2px; // Espaciado entre letras del código
+        text-align: center;
+        border: 2px solid $border-color;
+        border-radius: 12px;
+        color: $primary-color;
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+
+        &:focus {
+            border-color: $secondary-color;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba($secondary-color, 0.1);
+            outline: none;
+        }
+
+        &:disabled {
+            background-color: $bg-color;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    }
+
+    // BOTÓN
+    .btn {
+        background-color: $primary-color;
+        color: white;
+        padding: 15px 25px;
+        font-size: 1rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 5px;
+
+        &:hover:not(:disabled) {
+            background-color: lighten($primary-color, 8%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba($primary-color, 0.3);
+        }
+
+        &:disabled {
+            background-color: $text-muted;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    }
+
+    // --- CARTELES DE MENSAJES (ALERTA) ---
+    .error,
+    .success {
+        padding: 15px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        animation: slideIn 0.3s ease-out; // Animación de entrada
+    }
+
+    .error {
+        background-color: #fef2f2;
+        color: $error-color;
+        border: 1px solid rgba($error-color, 0.2);
+
+        &::before {
+            content: '⚠️'; // Icono rápido sin librerías externas
+        }
+    }
+
+    .success {
+        background-color: #f0fdf4;
+        color: $success-color;
+        border: 1px solid rgba($success-color, 0.2);
+
+        &::before {
+            content: '✅';
+        }
+    }
+}
+
+// ANIMACIÓN DE ENTRADA PARA LOS CARTELES
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// RESPONSIVE
+@media (max-width: 500px) {
+    .unirse-grupo-container {
+        margin: 20px 15px;
+        padding: 20px;
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
+        .input {
+            font-size: 1.1rem;
+        }
+    }
+}

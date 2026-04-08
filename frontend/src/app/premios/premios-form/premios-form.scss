@@ -1,0 +1,421 @@
+// VARIABLES CONSISTENTES
+$primary-color: #002D62;
+$secondary-color: #007bff;
+$accent-color: #ffc107;
+$bg-color: #f1f5f9;
+$card-bg: #ffffff;
+$text-main: #1e293b;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+
+// CONTENEDOR PADRE CENTRADO
+.premios-container {
+    display: grid;
+    // Esto hace que las columnas se expandan para ocupar el mismo espacio exacto
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px; // Límite de ancho para escritorio
+    margin: 0 auto; // Centra el contenedor en la pantalla
+    width: 100%;
+    box-sizing: border-box;
+}
+
+// TARJETA DE PREMIO
+.premio-card {
+    background: $card-bg;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid $border-color;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%; // Todas las cards miden lo mismo de alto
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: $secondary-color;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+
+        h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 800;
+            color: $primary-color;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .puntos-tag {
+            background: $primary-color;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+    }
+}
+
+// SLOT PARA EL JUGADOR (CENTRADO INTERNO)
+.player-slot {
+    flex: 1; // Empuja el contenido para llenar la card
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 20px;
+    transition: all 0.2s ease;
+    min-height: 140px;
+
+    &:hover {
+        background: #fff;
+        border-color: $secondary-color;
+
+        .plus-icon {
+            color: $secondary-color;
+            transform: scale(1.2);
+        }
+    }
+
+    // Estado cuando hay un jugador
+    .player-image-wrapper {
+        position: relative;
+        margin-bottom: 12px;
+
+        .iniciales-circulo-small {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, $primary-color, $secondary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .flag-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+    }
+
+    .player-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: $text-main;
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: $text-muted;
+
+        .plus-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+            transition: transform 0.2s;
+        }
+
+        p {
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    }
+}
+
+// MODAL DE BÚSQUEDA (100% RESPONSIVE)
+.search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center; // Centrado total
+    padding: 15px;
+
+    .search-modal {
+        background: white;
+        width: 100%;
+        max-width: 500px;
+        border-radius: 24px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: modalScale 0.3s ease-out;
+
+        .modal-header {
+            padding: 20px;
+            background: $primary-color;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            h3 {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+
+            .btn-close-x {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 2rem;
+                cursor: pointer;
+                line-height: 1;
+            }
+        }
+    }
+}
+
+// INPUT DE BÚSQUEDA
+.search-input {
+    width: 100%;
+    padding: 18px 25px;
+    border: none;
+    border-bottom: 2px solid $border-color;
+    font-size: 1.1rem;
+    color: $text-main;
+    outline: none;
+
+    &:focus {
+        border-bottom-color: $secondary-color;
+    }
+}
+
+// RESULTADOS
+.results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+
+    .result-item {
+        padding: 12px;
+        border-radius: 15px;
+        cursor: pointer;
+        margin-bottom: 8px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+
+        &:hover {
+            background: #f1f5f9;
+            border-color: $border-color;
+        }
+
+        .jugador-card-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+
+            .iniciales-circulo {
+                width: 50px;
+                height: 50px;
+                background: #e2e8f0;
+                color: $primary-color;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 800;
+            }
+
+            .info {
+                h3 {
+                    margin: 0;
+                    font-size: 1rem;
+                    color: $text-main;
+                }
+
+                p {
+                    margin: 0;
+                    font-size: 0.8rem;
+                    color: $text-muted;
+                }
+
+                .badge-pos {
+                    display: inline-block;
+                    font-size: 0.65rem;
+                    background: #0076eb;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    font-weight: 700;
+                    margin-top: 4px;
+                }
+            }
+
+            .mini-flag {
+                width: 24px;
+                height: 16px;
+                border-radius: 2px;
+            }
+        }
+    }
+}
+
+// ANIMACIONES
+@keyframes modalScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// MEDIA QUERIES PARA 100% RESPONSIVE
+@media (max-width: 768px) {
+    .premios-container {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        padding: 10px;
+    }
+
+    .premio-card {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .player-slot {
+        min-height: 120px;
+        padding: 10px;
+
+        .player-image-wrapper .iniciales-circulo-small {
+            width: 50px;
+            height: 50px;
+            font-size: 1.1rem;
+        }
+    }
+}
+
+@media (max-width: 400px) {
+    .premios-container {
+        grid-template-columns: 1fr; // Una sola columna en teléfonos muy pequeños
+    }
+}
+
+.is-locked {
+    .premio-card {
+        opacity: 0.85;
+        cursor: default;
+        border: 1px solid #333;
+    }
+
+    .player-slot {
+        pointer-events: none; // Deshabilita cualquier clic
+    }
+}
+
+.locked-banner {
+    background: #1b5e20; // Un verde oscuro "seguro"
+    color: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+    border: 1px solid #2e7d32;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: #222;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 400px;
+    border: 1px solid #ffd700;
+
+    h3 {
+        color: #ffd700;
+        margin-bottom: 15px;
+    }
+
+    p {
+        color: #ccc;
+        margin-bottom: 25px;
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+
+    button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+}
+
+.btn-confirm {
+    background: #ffd700;
+    color: #000;
+    border: none;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #555;
+}

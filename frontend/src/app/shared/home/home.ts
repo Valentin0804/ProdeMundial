@@ -2,6 +2,7 @@ import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { DetalleGrupoComponent } from '../../grupos/detalle-grupo/detalle-grupo';
 import { GrupoService } from '../../core/services/grupo';
 import { FixtureService } from '../../core/services/fixture';
 
@@ -10,10 +11,11 @@ import { FixtureService } from '../../core/services/fixture';
     templateUrl: './home.html',
     styleUrls: ['./home.scss'],
     standalone: true,
-    imports: [CommonModule, RouterModule]
+    imports: [CommonModule, RouterModule, DetalleGrupoComponent]
 })
 export class HomeComponent implements OnInit {
     misGrupos: any[] = [];
+    grupoSeleccionadoId: number | null = null;
     proximosPartidos: any[] = [];
     cargando = true;
 
@@ -24,34 +26,31 @@ export class HomeComponent implements OnInit {
         private cdr: ChangeDetectorRef
     ) { }
 
+    abrirDetalleGrupo(id: number) {
+        this.grupoSeleccionadoId = id;
+    }
 
     copiarCodigo(codigo: string): void {
         navigator.clipboard.writeText(codigo);
         alert('¡Código copiado! Pasalo por WhatsApp a tus amigos.');
     }
 
-
-    // home.ts
     ngOnInit(): void {
         this.cargando = true;
 
-        // Usamos forkJoin para que todo aparezca de golpe y no por partes
         forkJoin({
             grupos: this.grupoService.getMisGrupos(),
             fixture: this.fixtureService.getFixtureGrupos()
         }).subscribe({
             next: (res: any) => {
                 this.zone.run(() => {
-                    // Procesar Grupos
                     const dataG = res.grupos.results || res.grupos;
                     this.misGrupos = Array.isArray(dataG) ? dataG : [];
 
-                    // Procesar Partidos
                     this.proximosPartidos = this.extraerProximos(res.fixture);
 
                     this.cargando = false;
 
-                    // Forzamos la detección inmediatamente después de asignar todo
                     this.cdr.detectChanges();
                 });
             },
@@ -71,9 +70,7 @@ export class HomeComponent implements OnInit {
         try {
             const todosLosPartidos: any[] = [];
 
-            // Recorremos los grupos (A, B, C...)
             Object.values(data).forEach((grupo: any) => {
-                // Recorremos las jornadas (Jornada 1, 2...)
                 Object.values(grupo).forEach((jornada: any) => {
                     if (Array.isArray(jornada)) {
                         todosLosPartidos.push(...jornada);
@@ -81,7 +78,6 @@ export class HomeComponent implements OnInit {
                 });
             });
 
-            // Ordenar por fecha para mostrar los 3 que realmente siguen
             return todosLosPartidos
                 .sort((a, b) => new Date(a.fecha_hora).getTime() - new Date(b.fecha_hora).getTime())
                 .slice(0, 3);
